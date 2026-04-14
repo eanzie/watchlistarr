@@ -1,10 +1,29 @@
 package radarr
 
-private case class RadarrPost(
+import io.circe.syntax._
+import io.circe.{Encoder, Json, JsonObject}
+
+case class RadarrPost(
     title: String,
     tmdbId: Long,
     qualityProfileId: Int = 6,
     rootFolderPath: String,
-    addOptions: AddOptions = AddOptions(),
+    minimumAvailability: Option[String] = None,
     tags: List[Int] = List.empty[Int]
 )
+
+object RadarrPost {
+  implicit val encoder: Encoder[RadarrPost] = Encoder.instance { post =>
+    var fields = List[(String, Json)](
+      "title"            -> post.title.asJson,
+      "tmdbId"           -> post.tmdbId.asJson,
+      "qualityProfileId" -> post.qualityProfileId.asJson,
+      "rootFolderPath"   -> post.rootFolderPath.asJson,
+      "tags"             -> post.tags.asJson
+    )
+    post.minimumAvailability.foreach { avail =>
+      fields = fields :+ ("minimumAvailability" -> avail.asJson)
+    }
+    Json.fromJsonObject(JsonObject.fromIterable(fields))
+  }
+}
