@@ -188,7 +188,7 @@ object ConfigurationUtils {
         .getConfigOption(Keys.radarrTags)
         .map(getTagIdsFromConfig(client, url, apiKey))
         .getOrElse(IO.pure(Set.empty[Int]))
-      availability = configReader.getConfigOption(Keys.radarrAvailability)
+      availability = configReader.getConfigOption(Keys.radarrAvailability).map(_.trim).filter(_.nonEmpty)
     } yield (url, apiKey, qualityProfileId, rootFolder, tagIds, availability)
   }
 
