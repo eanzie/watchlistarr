@@ -35,6 +35,7 @@ trait RadarrUtils extends RadarrConversions {
       item.getTmdbId.getOrElse(0L),
       config.radarrQualityProfileId,
       config.radarrRootFolder,
+      minimumAvailability = config.radarrAvailability,
       tags = config.radarrTagIds.toList
     )
 
