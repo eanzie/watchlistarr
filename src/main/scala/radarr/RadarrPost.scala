@@ -1,5 +1,6 @@
 package radarr
 
+import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Encoder, Json, JsonObject}
 
@@ -9,7 +10,8 @@ case class RadarrPost(
     qualityProfileId: Int = 6,
     rootFolderPath: String,
     minimumAvailability: Option[String] = None,
-    tags: List[Int] = List.empty[Int]
+    tags: List[Int] = List.empty[Int],
+    addOptions: AddOptions = AddOptions()
 )
 
 object RadarrPost {
@@ -24,6 +26,7 @@ object RadarrPost {
     post.minimumAvailability.foreach { avail =>
       fields = fields :+ ("minimumAvailability" -> avail.asJson)
     }
+    fields = fields :+ ("addOptions" -> post.addOptions.asJson)
     Json.fromJsonObject(JsonObject.fromIterable(fields))
   }
 }
