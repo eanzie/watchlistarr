@@ -34,7 +34,18 @@ object PlexTokenDeleteSync extends PlexUtils with SonarrUtils with RadarrUtils {
         bypass = true
       )
       allIdsWithoutExclusions = moviesWithoutExclusions ++ seriesWithoutExclusions
-      _ <- missingIdsOnPlex(client)(config)(allIdsWithoutExclusions, selfWatchlist ++ othersWatchlist ++ watchlistData)
+      watchlist               = selfWatchlist ++ othersWatchlist ++ watchlistData
+      // An empty watchlist alongside a non-empty library is far more likely to be a Plex API
+      // failure than a genuinely cleared watchlist, and acting on it would wipe the library.
+      _ <-
+        if (watchlist.isEmpty && allIdsWithoutExclusions.nonEmpty) {
+          logger.warn(
+            s"Every Plex watchlist came back empty while Sonarr/Radarr still hold ${allIdsWithoutExclusions.size} items. " +
+              "Skipping deletion this round in case Plex is failing rather than empty."
+          )
+          EitherT.pure[IO, Throwable](Set.empty[Unit])
+        } else
+          missingIdsOnPlex(client)(config)(allIdsWithoutExclusions, watchlist)
     } yield ()
 
     result

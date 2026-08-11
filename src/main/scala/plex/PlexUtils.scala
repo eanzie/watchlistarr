@@ -13,8 +13,6 @@ import io.circe.generic.extras.auto._
 import io.circe.syntax.EncoderOps
 import org.http4s.client.UnexpectedStatus
 
-import java.util.UUID
-
 trait PlexUtils {
 
   private val logger = LoggerFactory.getLogger(getClass)
@@ -23,10 +21,9 @@ trait PlexUtils {
     extras.Configuration.default.withDefaults
 
   protected def fetchWatchlistFromRss(client: HttpClient)(url: Uri): IO[Set[Item]] = {
-    val randomUUID = UUID.randomUUID().toString.take(12)
-    val jsonFormatUrl = url
-      .withQueryParam("format", "json")
-      .withQueryParam("cache_buster", randomUUID)
+    // No cache buster: Plex now redirects the feed to a presigned URL and drops any extra query
+    // params on the way, so a random param only bought an extra redirect hop.
+    val jsonFormatUrl = url.withQueryParam("format", "json")
 
     client.httpRequest(Method.GET, jsonFormatUrl).map {
       case Left(UnexpectedStatus(s, _, _)) if s.code == 500 =>
