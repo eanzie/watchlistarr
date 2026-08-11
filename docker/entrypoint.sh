@@ -1,7 +1,11 @@
 #!/bin/bash
 CMD=("/app/bin/watchlistarr")
 
-JAVA_OPTS=(-Xmx100m)
+# The native-packager launcher only forwards -J*, -D*, -XX* and agent flags to the JVM;
+# anything else becomes an application argument. The previous value here was a bare
+# "-Xmx100m", which therefore never limited the heap at all. Size the heap off the
+# container's memory limit instead of hardcoding a number.
+JAVA_OPTS=(-J-XX:MaxRAMPercentage=75.0)
 
 if [ -n "$SONARR_API_KEY" ]; then
   CMD+=("-Dsonarr.apikey=$SONARR_API_KEY")
