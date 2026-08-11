@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.18"
 
 lazy val root = (project in file("."))
   .settings(
@@ -13,22 +13,24 @@ lazy val root = (project in file("."))
     }.taskValue
   )
 
-val caseInsensitiveVersion    = "1.4.0"
-val catsCoreVersion           = "2.9.0"
-val catsEffectVersion         = "3.5.0"
-val catsEffectKernelVersion   = "3.5.1"
-val circeGenericExtrasVersion = "0.14.3"
-val circeVersion              = "0.14.6"
-val fs2Version                = "3.7.0"
-val http4sVersion             = "0.23.23"
-val logbackVersion            = "1.4.11"
-val scaffeineVersion          = "5.2.1"
-val scalamockVersion          = "5.2.0"
-val scalatestVersion          = "3.2.17"
-val shapelessVersion          = "2.3.10"
-val slf4jVersion              = "2.0.12"
-val snakeYamlVersion          = "2.2"
-val vaultVersion              = "3.5.0"
+// Versions below are kept in step with what http4s 0.23.x is built against, so that
+// sbt does not have to evict anything: cats-effect, fs2, cats-core, vault and
+// case-insensitive all match the versions declared by http4s-core 0.23.36.
+val caseInsensitiveVersion    = "1.5.0"
+val catsCoreVersion           = "2.13.0"
+val catsEffectVersion         = "3.7.0"
+val circeGenericExtrasVersion = "0.14.4"
+val circeVersion              = "0.14.16"
+val fs2Version                = "3.13.0"
+val http4sVersion             = "0.23.36"
+val logbackVersion            = "1.5.38"
+val scaffeineVersion          = "5.3.0"
+val scalamockVersion          = "7.5.5"
+val scalatestVersion          = "3.2.20"
+val shapelessVersion          = "2.3.13"
+val slf4jVersion              = "2.0.18"
+val snakeYamlVersion          = "2.6"
+val vaultVersion              = "3.7.0"
 
 libraryDependencies ++= Seq(
   "org.scala-lang"      % "scala-library"        % scalaVersion.value % "provided",
@@ -45,7 +47,7 @@ libraryDependencies ++= Seq(
   "org.typelevel"      %% "case-insensitive"     % caseInsensitiveVersion,
   "org.typelevel"      %% "cats-core"            % catsCoreVersion,
   "org.typelevel"      %% "cats-effect"          % catsEffectVersion,
-  "org.typelevel"      %% "cats-effect-kernel"   % catsEffectKernelVersion,
+  "org.typelevel"      %% "cats-effect-kernel"   % catsEffectVersion,
   "org.typelevel"      %% "vault"                % vaultVersion,
   "io.circe"           %% "circe-generic"        % circeVersion,
   "io.circe"           %% "circe-generic-extras" % circeGenericExtrasVersion,
