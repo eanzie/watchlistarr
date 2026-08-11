@@ -13,21 +13,27 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # GITHUB_TOKEN is injected into every run, so publishing to ghcr.io needs no
+    # manually created registry credentials - only this permission.
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Login to DockerHub
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Metadata action
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP_NAME }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}
           tags: |
             type=sha
             beta
@@ -49,3 +55,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
