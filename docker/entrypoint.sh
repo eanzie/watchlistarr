@@ -75,22 +75,6 @@ if [ -n "$SKIP_FRIEND_SYNC" ]; then
   CMD+=("-Dplex.skipfriendsync=$SKIP_FRIEND_SYNC")
 fi
 
-if [ -n "$ALLOW_MOVIE_DELETING" ]; then
-  CMD+=("-Ddelete.movie=$ALLOW_MOVIE_DELETING")
-fi
-
-if [ -n "$ALLOW_ENDED_SHOW_DELETING" ]; then
-  CMD+=("-Ddelete.endedShow=$ALLOW_ENDED_SHOW_DELETING")
-fi
-
-if [ -n "$ALLOW_CONTINUING_SHOW_DELETING" ]; then
-  CMD+=("-Ddelete.continuingShow=$ALLOW_CONTINUING_SHOW_DELETING")
-fi
-
-if [ -n "$DELETE_INTERVAL_DAYS" ]; then
-  CMD+=("-Ddelete.interval.days=$DELETE_INTERVAL_DAYS")
-fi
-
 if [ -n "$SONARR_TAGS" ]; then
   CMD+=("-Dsonarr.tags=$SONARR_TAGS")
 fi

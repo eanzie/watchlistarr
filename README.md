@@ -20,15 +20,11 @@ There are several ways of fetching watchlist information from Plex
 In order to fully integrate with Plex Watchlists, Watchlistarr uses a combination of multiple methods to ensure that it
 does a comprehensive, yet fast real-time sync.
 
-### Full Delete Sync
+### Delete Sync
 
-Watchlistarr also supports a full delete sync with your watchlist. This means that **if
-a user
-removes an item off their watchlist, Watchlistarr can detect that and delete content from Sonarr/Radarr.**
-
-Note: This feature is disabled by default
-Whether you've enabled this or not, you can enjoy a little "sneak peek"
-upon startup of the app, where the logs will list the movies/tv shows that are out of sync.
+This fork does not delete anything. The delete sync that upstream Watchlistarr offers - removing
+content from Sonarr/Radarr when it leaves a watchlist - has been removed entirely, along with its
+configuration, so watchlistarr only ever adds.
 
 ### Requirements
 

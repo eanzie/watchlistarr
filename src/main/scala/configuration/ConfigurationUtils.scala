@@ -1,11 +1,9 @@
 package configuration
 
 import cats.effect.IO
-import cats.implicits.toTraverseOps
 import cats.implicits._
 import http.HttpClient
 import io.circe.generic.auto._
-import io.circe.syntax._
 import io.circe.Json
 import org.http4s.{Method, Uri}
 import org.slf4j.LoggerFactory
@@ -40,15 +38,7 @@ object ConfigurationUtils {
       plexTokens          = getPlexTokens(configReader)
       skipFriendSync = configReader.getConfigOption(Keys.skipFriendSync).flatMap(_.toBooleanOption).getOrElse(false)
       plexWatchlistUrls <- getPlexWatchlistUrls(client)(configReader, plexTokens, skipFriendSync)
-      deleteMovies     = configReader.getConfigOption(Keys.deleteMovies).flatMap(_.toBooleanOption).getOrElse(false)
-      deleteEndedShows = configReader.getConfigOption(Keys.deleteEndedShow).flatMap(_.toBooleanOption).getOrElse(false)
-      deleteContinuingShows = configReader
-        .getConfigOption(Keys.deleteContinuingShow)
-        .flatMap(_.toBooleanOption)
-        .getOrElse(false)
-      deleteInterval = configReader.getConfigOption(Keys.deleteIntervalDays).flatMap(_.toIntOption).getOrElse(7).days
-      deleteFiles    = configReader.getConfigOption(Keys.deleteFiles).flatMap(_.toBooleanOption).getOrElse(true)
-      hasPlexPass    = plexWatchlistUrls.nonEmpty
+      hasPlexPass = plexWatchlistUrls.nonEmpty
     } yield Configuration(
       if (hasPlexPass) refreshInterval else 19.minutes,
       SonarrConfiguration(
@@ -75,13 +65,6 @@ object ConfigurationUtils {
         plexTokens,
         skipFriendSync,
         hasPlexPass
-      ),
-      DeleteConfiguration(
-        deleteMovies,
-        deleteEndedShows,
-        deleteContinuingShows,
-        deleteInterval,
-        deleteFiles
       )
     )
 

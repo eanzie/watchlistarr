@@ -8,8 +8,7 @@ case class Configuration(
     refreshInterval: FiniteDuration,
     sonarrConfiguration: SonarrConfiguration,
     radarrConfiguration: RadarrConfiguration,
-    plexConfiguration: PlexConfiguration,
-    deleteConfiguration: DeleteConfiguration
+    plexConfiguration: PlexConfiguration
 )
 
 case class SonarrConfiguration(
@@ -38,12 +37,4 @@ case class PlexConfiguration(
     plexTokens: Set[String],
     skipFriendSync: Boolean,
     hasPlexPass: Boolean
-)
-
-case class DeleteConfiguration(
-    movieDeleting: Boolean,
-    endedShowDeleting: Boolean,
-    continuingShowDeleting: Boolean,
-    deleteInterval: FiniteDuration,
-    deleteFiles: Boolean
 )

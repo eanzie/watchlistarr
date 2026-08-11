@@ -198,13 +198,8 @@ class ConfigurationUtilsSpec extends AnyFlatSpec with Matchers with MockFactory 
     (mockConfigReader.getConfigOption _).expects(Keys.sonarrSeasonMonitoring).returning(unset).anyNumberOfTimes()
     (mockConfigReader.getConfigOption _).expects(Keys.plexToken).returning(plexToken).anyNumberOfTimes()
     (mockConfigReader.getConfigOption _).expects(Keys.skipFriendSync).returning(unset).anyNumberOfTimes()
-    (mockConfigReader.getConfigOption _).expects(Keys.deleteMovies).returning(unset).anyNumberOfTimes()
-    (mockConfigReader.getConfigOption _).expects(Keys.deleteContinuingShow).returning(unset).anyNumberOfTimes()
-    (mockConfigReader.getConfigOption _).expects(Keys.deleteEndedShow).returning(unset).anyNumberOfTimes()
-    (mockConfigReader.getConfigOption _).expects(Keys.deleteIntervalDays).returning(unset).anyNumberOfTimes()
     (mockConfigReader.getConfigOption _).expects(Keys.sonarrTags).returning(tags).anyNumberOfTimes()
     (mockConfigReader.getConfigOption _).expects(Keys.radarrTags).returning(tags).anyNumberOfTimes()
-    (mockConfigReader.getConfigOption _).expects(Keys.deleteFiles).returning(unset).anyNumberOfTimes()
     mockConfigReader
   }
 

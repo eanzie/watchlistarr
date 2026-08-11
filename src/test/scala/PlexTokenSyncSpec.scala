@@ -1,6 +1,6 @@
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import configuration.{Configuration, DeleteConfiguration, PlexConfiguration, RadarrConfiguration, SonarrConfiguration}
+import configuration.{Configuration, PlexConfiguration, RadarrConfiguration, SonarrConfiguration}
 import http.HttpClient
 import io.circe.parser._
 import io.circe.generic.auto._
@@ -56,13 +56,6 @@ class PlexTokenSyncSpec extends AnyFlatSpec with Matchers with MockFactory {
       plexTokens = plexTokens,
       skipFriendSync = false,
       hasPlexPass = true
-    ),
-    DeleteConfiguration(
-      movieDeleting = false,
-      endedShowDeleting = false,
-      continuingShowDeleting = false,
-      deleteInterval = 7.days,
-      deleteFiles = true
     )
   )
 

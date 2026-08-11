@@ -74,23 +74,3 @@
 #  skipfriendsync: false
 
 
-#################################################################
-## Delete Sync Configuration
-#################################################################
-
-## WARNING: This WILL delete your content off Sonarr/Radarr INCLUDING files if
-#delete:
-## If enabled, movies that are not watchlisted will be deleted from Radarr. DEFAULT: false
-#  movie: false
-
-## If enabled, shows that have no more planned seasons and are not watchlisted will be deleted from Sonarr. DEFAULT: false
-#  endedShow: false
-
-## If enabled, shows that still have planned seasons and are not watchlisted will be deleted from Sonarr. DEFAULT: false
-#  continuingShow: false
-
-## Number of days to wait before deleting content from the arrs (Deleting must be enabled). DEFAULT: 7
-#  interval.days: 7
-
-## Choose whether you want to delete the files as well, or only the entry in Sonarr/Radarr. DEFAULT: true
-#  deleteFiles: true
