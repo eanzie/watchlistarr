@@ -51,6 +51,27 @@ class ItemSpec extends AnyFlatSpec with Matchers {
     item2.matches(item1) shouldBe false
   }
 
+  // PlexTokenSync matches via a matchKeys index rather than comparing every pair, so the two
+  // must agree or the sync would start adding titles that are already there.
+  "Item.matchKeys" should "agree with Item.matches for every pair" in {
+    val shared = punch
+    val items = List(
+      Item(punch, List(punch, shared), "movie"),
+      Item(punch, List(shared, punch), "movie"),
+      Item(punch, List(shared), "show"),
+      Item(punch, List(punch), "movie"),
+      Item(punch, List(punch, punch), "show")
+    )
+
+    for {
+      a <- items
+      b <- items
+    } withClue(s"$a vs $b: ") {
+      val viaIndex = b.matchKeys.exists(a.matchKeys.contains)
+      viaIndex shouldBe a.matches(b)
+    }
+  }
+
   "Item.getTvdbId" should "return a tvdbId" in {
     val item = Item(punch, List(punch, "tvdb://12345"), punch)
 

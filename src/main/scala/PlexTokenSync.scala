@@ -59,9 +59,14 @@ object PlexTokenSync extends PlexUtils with SonarrUtils with RadarrUtils {
   private def missingIds(
       client: HttpClient
   )(config: Configuration)(existingItems: Set[Item], watchlist: Set[Item]): EitherT[IO, Throwable, Set[Unit]] = {
+    // Index the library once instead of scanning all of it per watchlisted item. The nested scan
+    // was O(library x watchlist) and ran as one uninterrupted block on the compute pool, with no
+    // cede points for the runtime to schedule anything else.
+    val existingKeys = existingItems.flatMap(_.matchKeys)
+
     for {
       watchlistedItem <- watchlist
-      maybeExistingItem = existingItems.exists(_.matches(watchlistedItem))
+      maybeExistingItem = watchlistedItem.matchKeys.exists(existingKeys.contains)
       category          = watchlistedItem.category
       task = EitherT.fromEither[IO]((maybeExistingItem, category) match {
         case (true, c) =>

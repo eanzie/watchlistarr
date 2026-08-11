@@ -15,4 +15,11 @@ case class Item(title: String, guids: List[String], category: String, ended: Opt
 
   def matches(that: Item): Boolean =
     that.category == category && that.guids.exists(guids.contains)
+
+  /** The keys this item can be matched on, for building a lookup index.
+    *
+    * Two items match when they share a category and at least one guid, so a set of these keys answers the same question
+    * as [[matches]] without comparing every pair.
+    */
+  def matchKeys: Set[(String, String)] = guids.map(guid => (category, guid)).toSet
 }
