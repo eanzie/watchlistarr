@@ -30,7 +30,11 @@ class RadarrUtilsSpec extends AnyFlatSpec with Matchers with RadarrUtils with Mo
     (mockClient.httpRequest _)
       .expects(
         Method.GET,
-        Uri.unsafeFromString("http://localhost:7878").withPath(Uri.Path.unsafeFromString("/api/v3/exclusions")),
+        Uri
+          .unsafeFromString("http://localhost:7878")
+          .withPath(Uri.Path.unsafeFromString("/api/v3/exclusions/paged"))
+          .withQueryParam("page", 1)
+          .withQueryParam("pageSize", 1000),
         Some("radarr-api-key"),
         None
       )
@@ -70,11 +74,15 @@ class RadarrUtilsSpec extends AnyFlatSpec with Matchers with RadarrUtils with Mo
     (mockClient.httpRequest _)
       .expects(
         Method.GET,
-        Uri.unsafeFromString("http://localhost:7878").withPath(Uri.Path.unsafeFromString("/api/v3/exclusions")),
+        Uri
+          .unsafeFromString("http://localhost:7878")
+          .withPath(Uri.Path.unsafeFromString("/api/v3/exclusions/paged"))
+          .withQueryParam("page", 1)
+          .withQueryParam("pageSize", 1000),
         Some("radarr-api-key"),
         None
       )
-      .returning(IO.pure(parse("[]")))
+      .returning(IO.pure(parse("""{"page":1,"pageSize":1000,"totalRecords":0,"records":[]}""")))
       .once()
 
     val eitherResult =
@@ -82,5 +90,69 @@ class RadarrUtilsSpec extends AnyFlatSpec with Matchers with RadarrUtils with Mo
         .unsafeRunSync()
 
     eitherResult shouldBe Right(Set.empty)
+  }
+
+  // The paged endpoint caps a response at pageSize records. If the pages are not followed to the
+  // end, exclusions beyond the first page silently look as though they were never excluded.
+  it should "follow every page of exclusions, not just the first" in {
+    val pageSize   = 1000
+    val totalCount = pageSize + 3
+    val mockClient = mock[HttpClient]
+
+    def exclusionsPage(pageNumber: Int, ids: Seq[Int]): String = {
+      val records = ids.map(i => s"""{"tmdbId":$i,"movieTitle":"Movie $i","movieYear":2000,"id":$i}""").mkString(",")
+      s"""{"page":$pageNumber,"pageSize":$pageSize,"totalRecords":$totalCount,"records":[$records]}"""
+    }
+
+    (mockClient.httpRequest _)
+      .expects(
+        Method.GET,
+        Uri.unsafeFromString("http://localhost:7878").withPath(Uri.Path.unsafeFromString("/api/v3/movie")),
+        Some("radarr-api-key"),
+        None
+      )
+      .returning(IO.pure(parse("[]")))
+      .once()
+
+    (mockClient.httpRequest _)
+      .expects(
+        Method.GET,
+        Uri
+          .unsafeFromString("http://localhost:7878")
+          .withPath(Uri.Path.unsafeFromString("/api/v3/exclusions/paged"))
+          .withQueryParam("page", 1)
+          .withQueryParam("pageSize", pageSize),
+        Some("radarr-api-key"),
+        None
+      )
+      .returning(IO.pure(parse(exclusionsPage(1, 1 to pageSize))))
+      .once()
+
+    (mockClient.httpRequest _)
+      .expects(
+        Method.GET,
+        Uri
+          .unsafeFromString("http://localhost:7878")
+          .withPath(Uri.Path.unsafeFromString("/api/v3/exclusions/paged"))
+          .withQueryParam("page", 2)
+          .withQueryParam("pageSize", pageSize),
+        Some("radarr-api-key"),
+        None
+      )
+      .returning(IO.pure(parse(exclusionsPage(2, (pageSize + 1) to totalCount))))
+      .once()
+
+    val eitherResult =
+      fetchMovies(mockClient)("radarr-api-key", Uri.unsafeFromString("http://localhost:7878"), false).value
+        .unsafeRunSync()
+
+    eitherResult shouldBe a[Right[_, _]]
+    val result = eitherResult.getOrElse(Set.empty)
+
+    result.size shouldBe totalCount
+    // an item from the second page, which a single-page fetch would have missed
+    result.find(_.title == s"Movie $totalCount") shouldBe Some(
+      Item(s"Movie $totalCount", List(s"tmdb://$totalCount", s"radarr://$totalCount"), "movie", None)
+    )
   }
 }

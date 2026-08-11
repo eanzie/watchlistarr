@@ -1,7 +1,14 @@
-[
-  {
-    "tvdbId": 372848,
-    "title": "The Test",
-    "id": 1
-  }
-]
+{
+  "page": 1,
+  "pageSize": 1000,
+  "sortKey": "id",
+  "sortDirection": "ascending",
+  "totalRecords": 1,
+  "records": [
+    {
+      "tvdbId": 372848,
+      "title": "The Test",
+      "id": 1
+    }
+  ]
+}

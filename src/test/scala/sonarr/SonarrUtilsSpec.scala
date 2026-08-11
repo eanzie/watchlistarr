@@ -32,7 +32,9 @@ class SonarrUtilsSpec extends AnyFlatSpec with Matchers with SonarrUtils with Mo
         Method.GET,
         Uri
           .unsafeFromString("http://localhost:8989")
-          .withPath(Uri.Path.unsafeFromString("/api/v3/importlistexclusion")),
+          .withPath(Uri.Path.unsafeFromString("/api/v3/importlistexclusion/paged"))
+          .withQueryParam("page", 1)
+          .withQueryParam("pageSize", 1000),
         Some("sonarr-api-key"),
         None
       )
@@ -79,11 +81,13 @@ class SonarrUtilsSpec extends AnyFlatSpec with Matchers with SonarrUtils with Mo
         Method.GET,
         Uri
           .unsafeFromString("http://localhost:8989")
-          .withPath(Uri.Path.unsafeFromString("/api/v3/importlistexclusion")),
+          .withPath(Uri.Path.unsafeFromString("/api/v3/importlistexclusion/paged"))
+          .withQueryParam("page", 1)
+          .withQueryParam("pageSize", 1000),
         Some("sonarr-api-key"),
         None
       )
-      .returning(IO.pure(parse("[]")))
+      .returning(IO.pure(parse("""{"page":1,"pageSize":1000,"totalRecords":0,"records":[]}""")))
       .once()
 
     val eitherResult =

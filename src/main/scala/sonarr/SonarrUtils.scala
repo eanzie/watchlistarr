@@ -7,13 +7,15 @@ import http.HttpClient
 import io.circe.{Decoder, Json}
 import io.circe.generic.auto._
 import io.circe.syntax.EncoderOps
-import model.Item
+import model.{ArrPage, Item}
 import org.http4s.{MalformedMessageBodyFailure, Method, Uri}
 import org.slf4j.LoggerFactory
 
 trait SonarrUtils extends SonarrConversions {
 
   private val logger = LoggerFactory.getLogger(getClass)
+
+  private val pagedPageSize = 1000
 
   protected def fetchSeries(
       client: HttpClient
@@ -24,7 +26,7 @@ trait SonarrUtils extends SonarrConversions {
         if (bypass) {
           EitherT.pure[IO, Throwable](List.empty[SonarrSeries])
         } else {
-          getToArr[List[SonarrSeries]](client)(baseUrl, apiKey, "importlistexclusion")
+          getPagedToArr[SonarrSeries](client)(baseUrl, apiKey, "importlistexclusion")
         }
     } yield (shows.map(toItem) ++ exclusions.map(toItem)).toSet
 
@@ -78,6 +80,34 @@ trait SonarrUtils extends SonarrConversions {
     EitherT(client.httpRequest(Method.DELETE, urlWithQueryParams, Some(apiKey)))
       .recover { case _: MalformedMessageBodyFailure => Json.Null }
       .map(_ => ())
+  }
+
+  /** Walks a `.../paged` endpoint until every record has been collected.
+    *
+    * Sonarr marked the unpaged collection GET `[Obsolete]`, which is what produces "API call made to deprecated
+    * endpoint" in its log. The paged replacement defaults to a pageSize of 10, so it has to be given an explicit size
+    * and followed to the end - otherwise exclusions past the first page silently look as though they do not exist.
+    */
+  private def getPagedToArr[T: Decoder](
+      client: HttpClient
+  )(baseUrl: Uri, apiKey: String, endpoint: String, page: Int = 1): EitherT[IO, Throwable, List[T]] = {
+    val url = (baseUrl / "api" / "v3" / endpoint / "paged")
+      .withQueryParam("page", page)
+      .withQueryParam("pageSize", pagedPageSize)
+
+    for {
+      response     <- EitherT(client.httpRequest(Method.GET, url, Some(apiKey)))
+      maybeDecoded <- EitherT.pure[IO, Throwable](response.as[ArrPage[T]])
+      decoded <- EitherT.fromOption[IO](
+        maybeDecoded.toOption,
+        new Throwable("Unable to decode paged response from Sonarr")
+      )
+      remaining <-
+        if (decoded.records.nonEmpty && page * pagedPageSize < decoded.totalRecords)
+          getPagedToArr[T](client)(baseUrl, apiKey, endpoint, page + 1)
+        else
+          EitherT.pure[IO, Throwable](List.empty[T])
+    } yield decoded.records ++ remaining
   }
 
   private def getToArr[T: Decoder](

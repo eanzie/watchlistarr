@@ -213,7 +213,7 @@ class PlexTokenSyncSpec extends AnyFlatSpec with Matchers with MockFactory {
     (httpClient.httpRequest _)
       .expects(
         Method.GET,
-        Uri.unsafeFromString("https://localhost:7878/api/v3/exclusions"),
+        Uri.unsafeFromString("https://localhost:7878/api/v3/exclusions/paged?page=1&pageSize=1000"),
         Some("radarr-api-key"),
         None
       )
@@ -262,7 +262,7 @@ class PlexTokenSyncSpec extends AnyFlatSpec with Matchers with MockFactory {
     (httpClient.httpRequest _)
       .expects(
         Method.GET,
-        Uri.unsafeFromString("https://localhost:8989/api/v3/importlistexclusion"),
+        Uri.unsafeFromString("https://localhost:8989/api/v3/importlistexclusion/paged?page=1&pageSize=1000"),
         Some("sonarr-api-key"),
         None
       )

@@ -8,13 +8,15 @@ import http.HttpClient
 import io.circe.{Decoder, Json}
 import io.circe.generic.auto._
 import io.circe.syntax.EncoderOps
-import model.Item
+import model.{ArrPage, Item}
 import org.http4s.{MalformedMessageBodyFailure, Method, Uri}
 import org.slf4j.LoggerFactory
 
 trait RadarrUtils extends RadarrConversions {
 
   private val logger = LoggerFactory.getLogger(getClass)
+
+  private val pagedPageSize = 1000
 
   protected def fetchMovies(
       client: HttpClient
@@ -25,7 +27,7 @@ trait RadarrUtils extends RadarrConversions {
         if (bypass) {
           EitherT.pure[IO, Throwable](List.empty[RadarrMovieExclusion])
         } else {
-          getToArr[List[RadarrMovieExclusion]](client)(baseUrl, apiKey, "exclusions")
+          getPagedToArr[RadarrMovieExclusion](client)(baseUrl, apiKey, "exclusions")
         }
     } yield (movies.map(toItem) ++ exclusions.map(toItem)).toSet
 
@@ -64,6 +66,34 @@ trait RadarrUtils extends RadarrConversions {
         logger.info(s"Deleted ${item.title} from Radarr")
         r
       }
+  }
+
+  /** Walks a `.../paged` endpoint until every record has been collected.
+    *
+    * Radarr marked the unpaged collection GET `[Obsolete]`, which is what produces "API call made to deprecated
+    * endpoint" in its log. The paged replacement defaults to a pageSize of 10, so it has to be given an explicit size
+    * and followed to the end - otherwise exclusions past the first page silently look as though they do not exist.
+    */
+  private def getPagedToArr[T: Decoder](
+      client: HttpClient
+  )(baseUrl: Uri, apiKey: String, endpoint: String, page: Int = 1): EitherT[IO, Throwable, List[T]] = {
+    val url = (baseUrl / "api" / "v3" / endpoint / "paged")
+      .withQueryParam("page", page)
+      .withQueryParam("pageSize", pagedPageSize)
+
+    for {
+      response     <- EitherT(client.httpRequest(Method.GET, url, Some(apiKey)))
+      maybeDecoded <- EitherT.pure[IO, Throwable](response.as[ArrPage[T]])
+      decoded <- EitherT.fromOption[IO](
+        maybeDecoded.toOption,
+        new Throwable("Unable to decode paged response from Radarr")
+      )
+      remaining <-
+        if (decoded.records.nonEmpty && page * pagedPageSize < decoded.totalRecords)
+          getPagedToArr[T](client)(baseUrl, apiKey, endpoint, page + 1)
+        else
+          EitherT.pure[IO, Throwable](List.empty[T])
+    } yield decoded.records ++ remaining
   }
 
   private def getToArr[T: Decoder](

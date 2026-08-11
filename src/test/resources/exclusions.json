@@ -1,14 +1,21 @@
-[
-  {
-    "tmdbId": 226979,
-    "movieTitle": "Test",
-    "movieYear": 2013,
-    "id": 1
-  },
-  {
-    "tmdbId": 762,
-    "movieTitle": "Monty Python and the Holy Grail",
-    "movieYear": 1975,
-    "id": 2
-  }
-]
+{
+  "page": 1,
+  "pageSize": 1000,
+  "sortKey": "id",
+  "sortDirection": "ascending",
+  "totalRecords": 2,
+  "records": [
+    {
+      "tmdbId": 226979,
+      "movieTitle": "Test",
+      "movieYear": 2013,
+      "id": 1
+    },
+    {
+      "tmdbId": 762,
+      "movieTitle": "Monty Python and the Holy Grail",
+      "movieYear": 1975,
+      "id": 2
+    }
+  ]
+}
