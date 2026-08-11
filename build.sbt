@@ -6,7 +6,7 @@ lazy val root = (project in file("."))
     version              := "0.2.7",
     assembly / mainClass := Some("Server"),
     Compile / resourceGenerators += Def.task {
-      val file = (Compile / resourceManaged).value / "version.properties"
+      val file    = (Compile / resourceManaged).value / "version.properties"
       val content = s"version=${version.value}\n"
       IO.write(file, content)
       Seq(file)

@@ -25,6 +25,10 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
           cache: 'sbt'
+      # The ubuntu runner image no longer ships sbt, and setup-java stopped
+      # bundling it, so it has to be installed explicitly.
+      - name: Set up sbt
+        uses: sbt/setup-sbt@v1
       - name: sbt validation
         run: sbt "scalafmtSbtCheck; scalafmtCheckAll; dependencyUpdatesFailBuild; unusedCompileDependenciesTest; undeclaredCompileDependenciesTest; test"
       - name: Build fat JAR
