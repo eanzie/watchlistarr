@@ -190,6 +190,7 @@ class ConfigurationUtilsSpec extends AnyFlatSpec with Matchers with MockFactory 
     (mockConfigReader.getConfigOption _).expects(Keys.radarrBaseUrl).returning(unset).anyNumberOfTimes()
     (mockConfigReader.getConfigOption _).expects(Keys.radarrApiKey).returning(radarrApiKey).anyNumberOfTimes()
     (mockConfigReader.getConfigOption _).expects(Keys.radarrQualityProfile).returning(qualityProfile).anyNumberOfTimes()
+    (mockConfigReader.getConfigOption _).expects(Keys.radarrAvailability).returning(unset).anyNumberOfTimes()
     (mockConfigReader.getConfigOption _).expects(Keys.radarrRootFolder).returning(radarrRootFolder).anyNumberOfTimes()
     (mockConfigReader.getConfigOption _).expects(Keys.radarrBypassIgnored).returning(unset).anyNumberOfTimes()
     (mockConfigReader.getConfigOption _).expects(Keys.plexWatchlist1).returning(plexWatchlist1).anyNumberOfTimes()

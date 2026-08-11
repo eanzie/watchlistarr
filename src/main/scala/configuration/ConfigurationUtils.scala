@@ -34,7 +34,8 @@ object ConfigurationUtils {
       sonarrBypassIgnored    = configReader.getConfigOption(Keys.sonarrBypassIgnored).exists(_.toBoolean)
       sonarrSeasonMonitoring = configReader.getConfigOption(Keys.sonarrSeasonMonitoring).getOrElse("all")
       radarrConfig <- getRadarrConfig(configReader, client)
-      (radarrBaseUrl, radarrApiKey, radarrQualityProfileId, radarrRootFolder, radarrTagIds, radarrAvailability) = radarrConfig
+      (radarrBaseUrl, radarrApiKey, radarrQualityProfileId, radarrRootFolder, radarrTagIds, radarrAvailability) =
+        radarrConfig
       radarrBypassIgnored = configReader.getConfigOption(Keys.radarrBypassIgnored).exists(_.toBoolean)
       plexTokens          = getPlexTokens(configReader)
       skipFriendSync = configReader.getConfigOption(Keys.skipFriendSync).flatMap(_.toBooleanOption).getOrElse(false)

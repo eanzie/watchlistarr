@@ -46,6 +46,7 @@ class PlexTokenSyncSpec extends AnyFlatSpec with Matchers with MockFactory {
       radarrBaseUrl = Uri.unsafeFromString("https://localhost:7878"),
       radarrApiKey = "radarr-api-key",
       radarrQualityProfileId = 1,
+      radarrAvailability = None,
       radarrRootFolder = "/root/",
       radarrBypassIgnored = false,
       radarrTagIds = Set(2)
